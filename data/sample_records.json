@@ -1,0 +1,183 @@
+
+[
+  {
+    "id": 1,
+    "command": "git init",
+    "option": "",
+    "topic": "repository",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Create a repository"
+  },
+  {
+    "id": 2,
+    "command": "git clone",
+    "option": "URL",
+    "topic": "repository",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Clone a repository"
+  },
+  {
+    "id": 3,
+    "command": "git status",
+    "option": "",
+    "topic": "inspection",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Check working tree status"
+  },
+  {
+    "id": 4,
+    "command": "git add",
+    "option": ".",
+    "topic": "staging",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Add file contents to staging"
+  },
+  {
+    "id": 5,
+    "command": "git commit",
+    "option": "-m",
+    "topic": "commit",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Record changes"
+  },
+  {
+    "id": 6,
+    "command": "git log",
+    "option": "--oneline",
+    "topic": "history",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "View commit history"
+  },
+  {
+    "id": 7,
+    "command": "git diff",
+    "option": "",
+    "topic": "inspection",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Show changes"
+  },
+  {
+    "id": 8,
+    "command": "git branch",
+    "option": "",
+    "topic": "branching",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "List branches"
+  },
+  {
+    "id": 9,
+    "command": "git switch",
+    "option": "-c",
+    "topic": "branching",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Create and switch branches"
+  },
+  {
+    "id": 10,
+    "command": "git merge",
+    "option": "",
+    "topic": "branching",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Join development histories"
+  },
+  {
+    "id": 11,
+    "command": "git pull",
+    "option": "",
+    "topic": "remote",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Fetch and integrate changes"
+  },
+  {
+    "id": 12,
+    "command": "git push",
+    "option": "-u",
+    "topic": "remote",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Update remote repository"
+  },
+  {
+    "id": 13,
+    "command": "git fetch",
+    "option": "",
+    "topic": "remote",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Download remote updates"
+  },
+  {
+    "id": 14,
+    "command": "git remote",
+    "option": "-v",
+    "topic": "remote",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Manage remote repositories"
+  },
+  {
+    "id": 15,
+    "command": "git reset",
+    "option": "--soft",
+    "topic": "undo",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Reset current HEAD"
+  },
+  {
+    "id": 16,
+    "command": "git revert",
+    "option": "",
+    "topic": "undo",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Revert commits"
+  },
+  {
+    "id": 17,
+    "command": "git stash",
+    "option": "",
+    "topic": "temporary changes",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Save temporary changes"
+  },
+  {
+    "id": 18,
+    "command": "git tag",
+    "option": "",
+    "topic": "versioning",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Manage tags"
+  },
+  {
+    "id": 19,
+    "command": "git show",
+    "option": "",
+    "topic": "inspection",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Show Git objects"
+  },
+  {
+    "id": 20,
+    "command": "git rm",
+    "option": "",
+    "topic": "files",
+    "git_version": "2.x",
+    "source": "Git Documentation",
+    "section": "Remove files"
+  }
+]
