@@ -1,0 +1,26 @@
+
+[project]
+name = "gitguru"
+version = "0.1.0"
+description = "A safe Git assistant that helps developers understand Git commands and recover from repository mistakes."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]",
+    "pydantic-settings",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+    "ruff",
+    "pre-commit",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

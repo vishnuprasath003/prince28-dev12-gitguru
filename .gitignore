@@ -1,0 +1,19 @@
+# Environment
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
