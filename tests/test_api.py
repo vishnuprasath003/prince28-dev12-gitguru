@@ -65,3 +65,44 @@ def test_request_id_header():
 
     assert response.status_code == 200
     assert "X-Request-ID" in response.headers
+
+
+def test_health_content_type():
+    response = client.get("/health")
+    assert "application/json" in response.headers["content-type"]
+
+
+def test_custom_request_id():
+    response = client.get("/health", headers={"X-Request-ID": "test-request-123"})
+    assert response.headers["X-Request-ID"] == "test-request-123"
+
+
+def test_ready_content_type():
+    response = client.get("/ready")
+    assert "application/json" in response.headers["content-type"]
+
+
+def test_documents_content_type():
+    response = client.get("/v1/documents")
+    assert "application/json" in response.headers["content-type"]
+
+
+def test_documents_response_is_list():
+    response = client.get("/v1/documents")
+    assert isinstance(response.json(), list)
+
+
+def test_document_has_required_fields():
+    response = client.get("/v1/documents/1")
+    data = response.json()
+    assert {"id", "command", "topic", "source"} <= data.keys()
+
+
+def test_invalid_document_id():
+    response = client.get("/v1/documents/abc")
+    assert response.status_code == 422
+
+
+def test_document_id_is_integer():
+    response = client.get("/v1/documents/1")
+    assert isinstance(response.json()["id"], int)
