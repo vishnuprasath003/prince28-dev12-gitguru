@@ -1,30 +1,59 @@
-# GitGuru - Day 03 Notes
 
-## Database
-- PostgreSQL connected through SQLAlchemy async engine.
-- Documents and pages tables created using Alembic.
+# Engineering notes: GitGuru
 
-## Migrations
-- Initial migration: 53be466b9665
-- GIN migration: ff76728147ee
-- GIN index: ix_documents_metadata_gin
+## D03 - PostgreSQL
 
-## Loader
-- Script: scripts/load_db.py
-- First run output: TODO
-- Second run output: TODO
-- Updated-record test: TODO
+### Migrations (downgrade, current, upgrade, history)
 
-## API
-- Documents API: TODO
-- Filters: command, topic, source, git_version
-- Readiness endpoint: TODO
+```text
+uv run alembic downgrade -1
+Downgrade ff76728147ee -> 53be466b9665, add gin index on metadata
 
-## Tests
-- Current result: 8 passed
-- Target: 16 unit tests
+uv run alembic current
+53be466b9665
 
-## EXPLAIN
-- Run: uv run python scripts/explain.py
-- Query plan: TODO
-- Explanation: TODO
+uv run alembic upgrade head
+Upgrade 53be466b9665 -> ff76728147ee, add gin index on metadata
+
+uv run alembic history
+53be466b9665 -> ff76728147ee (head), add gin index on metadata
+<base> -> 53be466b9665, create documents and pages tables
+```
+
+### The loader is idempotent
+
+```text
+Run 1:
+PASTE ACTUAL OUTPUT HERE
+
+Run 2:
+PASTE ACTUAL OUTPUT HERE
+
+Run 3 (after editing one record):
+PASTE ACTUAL OUTPUT HERE
+```
+
+### EXPLAIN for ?command=git status
+
+```text
+Normal planner:
+Seq Scan on documents
+Filter: (metadata @> '{"command": "git status"}'::jsonb)
+Rows Removed by Filter: 19
+Execution Time: 0.033 ms
+
+With sequential scan disabled:
+Bitmap Heap Scan on documents
+ -> Bitmap Index Scan on ix_documents_metadata_gin
+Index Cond: metadata @> '{"command": "git status"}'
+Execution Time: 3.192 ms
+```
+
+### Why did PostgreSQL choose a Seq Scan?
+
+The table contains only 20 rows, so reading the entire table is cheaper than using an index.
+For a small table, index lookup can cost more than a sequential scan.
+
+### When would it switch to the GIN index?
+
+For larger tables or more selective JSONB filters, PostgreSQL may choose the GIN index when its estimated cost is lower.

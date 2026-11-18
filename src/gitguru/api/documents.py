@@ -1,89 +1,48 @@
-import uuid
+import re
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from gitguru.db.models import Document, Page
-from gitguru.db.session import async_session_maker
-from gitguru.schemas.document import DocumentCreate, DocumentResponse
+from gitguru.api.deps import get_repo
+from gitguru.db.repository import DocumentRepository
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-
-async def get_db():
-    async with async_session_maker() as session:
-        yield session
+FILTER_KEY = re.compile(r"^[a-z_][a-z0-9_]{0,40}$")
 
 
-@router.post("/", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-async def create_document(
-    doc_in: DocumentCreate,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
-):
-    existing = await db.execute(
-        select(Document).where(Document.sha256 == doc_in.sha256)
-    )
-    if existing.scalars().first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A document with this sha256 hash already exists.",
-        )
-
-    db_doc = Document(
-        title=doc_in.title,
-        source_url=doc_in.source_url,
-        licence=doc_in.licence,
-        doc_type=doc_in.doc_type,
-        published_on=doc_in.published_on,
-        sha256=doc_in.sha256,
-        metadata_=doc_in.metadata_,
-    )
-
-    for page_in in doc_in.pages:
-        db_page = Page(page_no=page_in.page_no, text=page_in.text)
-        db_doc.pages.append(db_page)
-
-    db.add(db_doc)
-    await db.commit()
-
-    stmt = (
-        select(Document)
-        .options(selectinload(Document.pages))
-        .where(Document.id == db_doc.id)
-    )
-    result = await db.execute(stmt)
-    return result.scalars().first()
-
-
-@router.get("/", response_model=list[DocumentResponse])
+@router.get("/")
 async def list_documents(
-    skip: int = 0,
-    limit: int = 10,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    request: Request,
+    repo: Annotated[DocumentRepository, Depends(get_repo)],
+    q: str | None = None,
+    limit: int = Query(default=10, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
 ):
-    stmt = (
-        select(Document).options(selectinload(Document.pages)).offset(skip).limit(limit)
-    )
-    result = await db.execute(stmt)
-    return result.scalars().all()
+    reserved = {"q", "limit", "offset"}
 
+    filters = {
+        key: value for key, value in request.query_params.items() if key not in reserved
+    }
 
-@router.get("/{doc_id}", response_model=DocumentResponse)
-async def get_document(
-    doc_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
-):
-    stmt = (
-        select(Document)
-        .options(selectinload(Document.pages))
-        .where(Document.id == doc_id)
+    for key in filters:
+        if not FILTER_KEY.fullmatch(key):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid filter name: {key}",
+            )
+
+    total, documents = await repo.list(
+        q=q,
+        filters=filters,
+        limit=limit,
+        offset=offset,
     )
-    result = await db.execute(stmt)
-    doc = result.scalars().first()
-    if not doc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
-        )
-    return doc
+
+    return {
+        "total": total,
+        "documents": documents,
+        "filters": filters,
+        "limit": limit,
+        "offset": offset,
+    }
