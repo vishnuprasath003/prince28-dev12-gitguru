@@ -1,8 +1,16 @@
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from gitguru.api.main import app
+from gitguru.config import Settings
 
 client = TestClient(app)
+
+
+def test_app_env_is_required():
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
 
 
 def test_health():

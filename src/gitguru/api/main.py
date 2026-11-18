@@ -9,6 +9,7 @@ from gitguru.api.errors import http_exception_handler
 from gitguru.api.logging_config import configure_logging, request_id_var
 from gitguru.api.routes import router
 from gitguru.api.settings import get_settings
+from gitguru.config import settings as app_settings
 
 logger = logging.getLogger("gitguru")
 
@@ -19,7 +20,7 @@ def create_app():
     configure_logging()
 
     app = FastAPI(title=settings.app_name)
-
+    app.state.app_env = app_settings.app_env
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 
     @app.middleware("http")
