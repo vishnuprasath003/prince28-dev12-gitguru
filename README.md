@@ -51,3 +51,44 @@ Then open http://localhost:8000/docs
 uv run pytest
 uv run ruff check .
 ```
+
+
+## Run locally in one command
+
+### Start the application
+
+```bash
+docker compose up --build -d
+```
+
+The Docker Compose stack starts:
+- PostgreSQL database
+- Redis
+- Database migrations
+- GitGuru API
+
+### Check application health
+
+Open:
+
+```text
+http://localhost:8000/ready
+```
+
+### Development commands
+
+```bash
+uv run poe dev
+uv run poe test
+uv run poe test-integration
+uv run poe cov
+uv run poe lint
+```
+
+### Stop the application
+
+```bash
+docker compose down
+```
+
+**Windows users:** Run the commands using PowerShell. Use `uv run poe` for development tasks instead of `make`.

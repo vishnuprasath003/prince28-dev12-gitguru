@@ -14,5 +14,4 @@ htmlcov/
 !.env.example
 tests/
 NOTES.md
-README.md
 *.log

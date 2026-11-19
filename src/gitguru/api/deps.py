@@ -24,5 +24,5 @@ async def check_db(request: Request) -> bool:
         async with request.app.state.session_factory() as session:
             await session.execute(text("SELECT 1"))
         return True
-    except SQLAlchemyError:
+    except (SQLAlchemyError, OSError):
         return False

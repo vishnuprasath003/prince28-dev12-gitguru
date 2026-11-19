@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,8 +20,9 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
-
-
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return settings
+    return Settings()
+
+
+settings = get_settings()

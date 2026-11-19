@@ -1,4 +1,6 @@
-
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 [project]
 name = "gitguru"
 version = "0.1.0"
@@ -19,6 +21,9 @@ dev = [
     "httpx",
     "ruff",
     "pre-commit",
+    "poethepoet>=0.49.0",
+    "pytest-asyncio>=1.5.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.ruff]
@@ -28,3 +33,31 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+
+[tool.coverage.run]
+source = ["gitguru"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.poe.tasks]
+dev = "uvicorn gitguru.api.main:create_app --factory --reload --no-access-log"
+lint = ["_ruff_check", "_ruff_format"]
+_ruff_check = "ruff check ."
+_ruff_format = "ruff format --check ."
+test = "pytest tests/unit"
+cov = "pytest --cov --cov-report=term-missing"
+migrate = "alembic upgrade head"
+seed = "python scripts/load_db.py"
+
+[tool.poe.tasks.test-integration]
+help = "Integration tests against the Postgres from docker compose (run `make up` first)"
+cmd = "pytest tests/integration"
+
+[tool.poe.tasks.test-integration.env.TEST_DATABASE_URL]
+default = "postgresql://app:app@localhost:5433/app_test"
