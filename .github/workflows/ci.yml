@@ -1,6 +1,4 @@
-
 # CI: every pull request and every push to main.
-# lint -> unit + integration tests (real Postgres) -> build the image -> push it (main only)
 name: CI
 
 on:
@@ -19,6 +17,7 @@ jobs:
   test:
     name: lint and test
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: pgvector/pgvector:pg17
@@ -32,6 +31,8 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
 
     env:
+      APP_ENV: ci
+      DATABASE_URL: postgresql://app:app@localhost:5433/app
       TEST_DATABASE_URL: postgresql://app:app@localhost:5433/app
 
     steps:
@@ -43,6 +44,7 @@ jobs:
           enable-cache: true
 
       - run: uv sync --locked
+
       - run: uv run poe lint
 
       - name: Unit + integration tests with coverage
@@ -52,6 +54,7 @@ jobs:
     name: build image
     needs: test
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
