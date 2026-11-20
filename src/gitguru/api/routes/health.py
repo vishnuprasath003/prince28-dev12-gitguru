@@ -5,7 +5,7 @@ from gitguru.api.deps import check_db
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 async def health(request: Request):
     return {
         "status": "ok",
