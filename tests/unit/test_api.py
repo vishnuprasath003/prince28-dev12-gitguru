@@ -9,10 +9,19 @@ def test_app_env_is_required():
         Settings(_env_file=None)
 
 
-def test_health(client):
+def test_health_is_ok(client):
     r = client.get("/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "healthy"}
+    assert r.json()["status"] == "ok"
+    assert r.json()["app"] == "gitguru"
+    assert r.json()["version"] == "dev"
+
+
+def test_health_returns_environment_and_version(client):
+    r = client.get("/health")
+    data = r.json()
+    assert data["env"] == "ci"
+    assert data["version"] == "dev"
 
 
 def test_ready(client):

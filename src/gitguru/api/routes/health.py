@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from gitguru.api.deps import check_db
 
@@ -6,8 +6,13 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-async def health():
-    return {"status": "healthy"}
+async def health(request: Request):
+    return {
+        "status": "ok",
+        "app": "gitguru",
+        "env": request.app.state.app_env,
+        "version": request.app.state.git_sha,
+    }
 
 
 @router.get("/ready")

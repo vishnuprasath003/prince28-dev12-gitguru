@@ -34,6 +34,10 @@ COPY --chown=app:app migrations ./migrations
 COPY --chown=app:app scripts ./scripts
 COPY --chown=app:app data ./data
 
+# Git commit SHA passed during Docker build
+ARG GIT_SHA=dev
+ENV GIT_SHA=${GIT_SHA}
+
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 
 USER app

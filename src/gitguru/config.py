@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     app_env: str
     database_url: str
 
+    # The commit this image was built from. CI sets it (Dockerfile ARG GIT_SHA); locally "dev".
+    git_sha: str = "dev"
+
     @field_validator("database_url", mode="before")
     @classmethod
     def assemble_db_url(cls, v: str) -> str:

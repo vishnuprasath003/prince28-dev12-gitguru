@@ -30,6 +30,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title="GitGuru", lifespan=lifespan)
     app.state.app_env = config.app_env
+    app.state.git_sha = config.git_sha
     app.state.session_factory = session_factory
 
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
