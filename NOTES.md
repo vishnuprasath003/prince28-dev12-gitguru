@@ -155,3 +155,34 @@ Two files my coverage report says are never run, and whether they matter:
 
 - `src/gitguru/api/legacy_routes.py` (lines 1–31): Legacy endpoints not registered in the active application.
 - `src/gitguru/api/settings.py` (lines 1–22): Used only by legacy routes; outside the active application path.
+
+
+
+## D05 · CI/CD and going live
+
+- Live URL: (paste)
+- CI run for pull request 1: https://github.com/vishnuprasath003/prince28-dev12-gitguru/actions (paste the run link)
+- First deploy that ran by itself: (paste the CD run link)
+- Merge clicked at __:__ → "Smoke test passed" at __:__ → lead time: ___ min
+
+### Smoke test output from that CD run
+
+```text
+paste the last 4 lines of the "Smoke test the live URL" step
+```
+
+### Rollback drill
+
+- Rolled back to sha ________ : started __:__, smoke passed __:__ (___ min)
+- Rolled forward to sha ________ : ___ min
+- During the rollback, the database stayed on the newer schema. Why is that safe here? (2 lines)
+
+### Where my secrets live
+
+- Neon string: GitHub Secret DATABASE_URL + Render environment. Not in Git, not in the image.
+- Render deploy hook: GitHub Secret RENDER_DEPLOY_HOOK only.
+
+### Monitoring
+
+- UptimeRobot checks /health every 5 minutes; alerts go to my email.
+- One thing that would make my live app faster on its first request: (1 line)
