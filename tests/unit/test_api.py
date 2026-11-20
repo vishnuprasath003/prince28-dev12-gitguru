@@ -4,7 +4,10 @@ from pydantic import ValidationError
 from gitguru.config import Settings
 
 
-def test_app_env_is_required():
+def test_app_env_is_required(monkeypatch):
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
 
