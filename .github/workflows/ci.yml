@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 
-concurrency:  # a newer push to the same branch cancels the older run
+concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
@@ -20,11 +20,11 @@ jobs:
     name: lint and test
     runs-on: ubuntu-latest
     services:
-      postgres:  # same image as docker compose: dev = CI
+      postgres:
         image: pgvector/pgvector:pg17
         env:
           POSTGRES_USER: app
-          POSTGRES_PASSWORD: app  # pragma: allowlist secret
+          POSTGRES_PASSWORD: app
           POSTGRES_DB: app
         ports: ["5433:5432"]
         options: >-
@@ -32,12 +32,12 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
 
     env:
-      TEST_DATABASE_URL: postgresql://app:app@localhost:5433/app  # pragma: allowlist secret
+      TEST_DATABASE_URL: postgresql://app:app@localhost:5433/app
 
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.32"
           enable-cache: true
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write  # push to ghcr.io with the built-in GITHUB_TOKEN
+      packages: write
 
     steps:
       - uses: actions/checkout@v7
@@ -74,7 +74,7 @@ jobs:
       - uses: docker/build-push-action@v7
         with:
           context: .
-          push: ${{ github.event_name == 'push' }}  # PRs only prove the image builds
+          push: ${{ github.event_name == 'push' }}
           build-args: GIT_SHA=${{ github.sha }}
           tags: |
             ${{ env.IMAGE }}:sha-${{ github.sha }}
