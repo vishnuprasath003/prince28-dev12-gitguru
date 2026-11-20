@@ -160,29 +160,32 @@ Two files my coverage report says are never run, and whether they matter:
 
 ## D05 · CI/CD and going live
 
-- Live URL: (paste)
-- CI run for pull request 1: https://github.com/vishnuprasath003/prince28-dev12-gitguru/actions (paste the run link)
-- First deploy that ran by itself: (paste the CD run link)
-- Merge clicked at __:__ → "Smoke test passed" at __:__ → lead time: ___ min
+- Live URL: https://gitguru-qg70.onrender.com
+- CI run for pull request 1: https://github.com/vishnuprasath003/prince28-dev12-gitguru/actions
+- First deploy that ran by itself: https://github.com/vishnuprasath003/prince28-dev12-gitguru/actions
+- Merge clicked at **Not recorded** → "Smoke test passed" at **Not recorded** → lead time: **Not recorded**
 
 ### Smoke test output from that CD run
 
 ```text
-paste the last 4 lines of the "Smoke test the live URL" step
+ok   /health -> 200
+ok   /ready -> 200 {'status': 'ready', 'checks': {'database': True}}
+ok   /v1/documents?limit=1 -> 200
+Smoke test passed
 ```
 
 ### Rollback drill
 
-- Rolled back to sha ________ : started __:__, smoke passed __:__ (___ min)
-- Rolled forward to sha ________ : ___ min
-- During the rollback, the database stayed on the newer schema. Why is that safe here? (2 lines)
+- Rolled back to SHA **abc9c131dab2944e1600c8350c875859d37ced43**: CD Run #3 successful in **57 seconds**. Exact start and finish times: Not recorded.
+- Rolled forward to SHA **66ac252615f4a71ca5704af88d32b720011a3c42**: CD Run #4 successful. Exact duration: Not recorded.
+- During rollback, the database stayed on the newer schema because rollback redeployed an older application image without reversing database migrations. This is safe as long as the older application remains compatible with the newer database schema.
 
 ### Where my secrets live
 
-- Neon string: GitHub Secret DATABASE_URL + Render environment. Not in Git, not in the image.
-- Render deploy hook: GitHub Secret RENDER_DEPLOY_HOOK only.
+- Neon string: GitHub Secret `DATABASE_URL` + Render environment. Not in Git, not in the image.
+- Render deploy hook: GitHub Secret `RENDER_DEPLOY_HOOK` only.
 
 ### Monitoring
 
-- UptimeRobot checks /health every 5 minutes; alerts go to my email.
-- One thing that would make my live app faster on its first request: (1 line)
+- UptimeRobot checks `/health` every 5 minutes; alerts go to my email.
+- One thing that would make my live app faster on its first request: Keeping the Render service warm with regular health checks helps avoid cold-start delays on the free instance.
