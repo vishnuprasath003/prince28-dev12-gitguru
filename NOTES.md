@@ -157,7 +157,6 @@ Two files my coverage report says are never run, and whether they matter:
 - `src/gitguru/api/settings.py` (lines 1–22): Used only by legacy routes; outside the active application path.
 
 
-
 ## D05 · CI/CD and going live
 
 - Live URL: https://gitguru-qg70.onrender.com
