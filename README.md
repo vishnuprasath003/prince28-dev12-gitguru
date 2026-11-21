@@ -71,7 +71,7 @@ uv run pytest
 uv run ruff check .
 ```
 
-## Run locally using Docker
+## Run locally in one command
 
 ### Start the application
 
