@@ -1,0 +1,19 @@
+
+# Sources for GitGuru. One row per file to download. Lines starting with # are notes.
+# Start target: Reference pages for the 40 most-used commands + Pro Git chapters 1-3 and 7
+# Where to look:
+#   https://git-scm.com/docs
+#   https://github.com/git/git (Documentation/)
+#   https://github.com/progit/progit2
+# Terms on my project card: Git docs GPL-2.0 with the code; Pro Git CC BY-NC-SA 3.0 (non-commercial, attribute).
+url,source,licence,title
+https://git-scm.com/docs/git-add,git-docs,"GPL-2.0 with the code",Git Add
+https://git-scm.com/docs/git-commit,git-docs,"GPL-2.0 with the code",Git Commit
+https://git-scm.com/docs/git-status,git-docs,"GPL-2.0 with the code",Git Status
+https://git-scm.com/docs/git-branch,git-docs,"GPL-2.0 with the code",Git Branch
+https://git-scm.com/docs/git-switch,git-docs,"GPL-2.0 with the code",Git Switch
+https://git-scm.com/docs/git-merge,git-docs,"GPL-2.0 with the code",Git Merge
+https://git-scm.com/docs/git-rebase,git-docs,"GPL-2.0 with the code",Git Rebase
+https://git-scm.com/docs/git-reset,git-docs,"GPL-2.0 with the code",Git Reset
+https://git-scm.com/docs/git-restore,git-docs,"GPL-2.0 with the code",Git Restore
+https://git-scm.com/docs/git-log,git-docs,"GPL-2.0 with the code",Git Log
