@@ -221,3 +221,86 @@ Smoke test passed
 - The number that surprised me most, and why (2 lines):
 
 ### One thing that went wrong today, and how I fixed it
+
+<!-- D07 parser comparison:start -->
+### D07 · Parser comparison
+
+| File | Parser | Status | Pages | Characters | Headings | Tables | Seconds | Choice / reason |
+|---|---|---|---:|---:|---:|---:|---:|---|
+| data\raw\git-docs\git-log-0d527d8c.html | Trafilatura | OK | 26 | 111182 | 62 | 0 | 2.632 | |
+| data\raw\git-docs\git-log-0d527d8c.html | Plain HTML tag stripping | OK | 1 | 109418 | 0 | 0 | 0.185 | |
+| data\raw\git-docs\git-rebase-48abaed1.html | Trafilatura | OK | 17 | 58073 | 34 | 0 | 0.832 | |
+| data\raw\git-docs\git-rebase-48abaed1.html | Plain HTML tag stripping | OK | 1 | 58181 | 0 | 0 | 0.111 | |
+| data\raw\git-docs\git-merge-b49a020a.html | Trafilatura | OK | 11 | 36636 | 20 | 0 | 0.878 | |
+| data\raw\git-docs\git-merge-b49a020a.html | Plain HTML tag stripping | OK | 1 | 37546 | 0 | 0 | 0.075 | |
+| data\raw\git-docs\git-commit-70d457fa.html | Trafilatura | OK | 8 | 29620 | 14 | 0 | 0.691 | |
+| data\raw\git-docs\git-commit-70d457fa.html | Plain HTML tag stripping | OK | 1 | 29967 | 0 | 0 | 0.05 | |
+| data\raw\git-docs\git-branch-2c009f25.html | Trafilatura | OK | 7 | 25607 | 12 | 0 | 0.587 | |
+| data\raw\git-docs\git-branch-2c009f25.html | Plain HTML tag stripping | OK | 1 | 25744 | 0 | 0 | 0.068 | |
+| data\raw\git-docs\git-status-14fc55bf.html | Trafilatura | ERROR: TypeError: object of type 'int' has no len() | 0 | 0 | 0 | 0 | 0.547 | |
+| data\raw\git-docs\git-status-14fc55bf.html | Plain HTML tag stripping | OK | 1 | 21083 | 0 | 0 | 0.064 | |
+| data\raw\git-docs\git-add-6266f910.html | Trafilatura | OK | 6 | 17814 | 10 | 0 | 0.377 | |
+| data\raw\git-docs\git-add-6266f910.html | Plain HTML tag stripping | OK | 1 | 19094 | 0 | 0 | 0.028 | |
+| data\raw\git-docs\git-reset-fdf3b046.html | Trafilatura | OK | 6 | 19034 | 10 | 0 | 0.394 | |
+| data\raw\git-docs\git-reset-fdf3b046.html | Plain HTML tag stripping | OK | 1 | 20271 | 0 | 0 | 0.055 | |
+| data\raw\git-docs\git-switch-5da70052.html | Trafilatura | OK | 4 | 11725 | 6 | 0 | 0.277 | |
+| data\raw\git-docs\git-switch-5da70052.html | Plain HTML tag stripping | OK | 1 | 12682 | 0 | 0 | 0.042 | |
+| data\raw\git-docs\git-restore-ad3d46f7.html | Trafilatura | OK | 3 | 8087 | 4 | 0 | 0.224 | |
+| data\raw\git-docs\git-restore-ad3d46f7.html | Plain HTML tag stripping | OK | 1 | 9110 | 0 | 0 | 0.029 | |
+
+Fill the **Choice / reason** column manually after inspecting the output.
+
+Inspect at least three files next to their parsed pages. Check table quality, heading accuracy, unwanted boilerplate, character quality, and parsing speed.
+
+<!-- D07 parser comparison:end -->
+
+## D07 · Parser comparison
+
+<!-- parsers:start -->
+| File | Parsers (A / B) | Pages | A found | B found | Time (A / B) | Better, why |
+|---|---|---|---|---|---|---|
+| git-log-0d527d8c.html | trafilatura / strip tags | 26 | 111,207 chars, 28 headings, 0 tables | 112,866 chars, 0 headings, 0 tables | 2.28 s / 0.07 s | |
+| git-rebase-48abaed1.html | trafilatura / strip tags | 17 | 58,089 chars, 40 headings, 0 tables | 58,971 chars, 2 headings, 0 tables | 0.55 s / 0.03 s | |
+| git-merge-b49a020a.html | trafilatura / strip tags | 11 | 36,646 chars, 26 headings, 0 tables | 38,555 chars, 0 headings, 0 tables | 0.47 s / 0.02 s | |
+| git-commit-70d457fa.html | trafilatura / strip tags | 8 | 29,627 chars, 24 headings, 0 tables | 31,028 chars, 1 headings, 0 tables | 0.38 s / 0.02 s | |
+| git-branch-2c009f25.html | trafilatura / strip tags | 7 | 25,613 chars, 21 headings, 0 tables | 27,085 chars, 0 headings, 0 tables | 0.35 s / 0.02 s | |
+| git-status-14fc55bf.html | trafilatura / strip tags | 8 | 20,227 chars, 28 headings, 4 tables | 22,138 chars, 5 headings, 0 tables | 0.31 s / 0.02 s | |
+| git-add-6266f910.html | trafilatura / strip tags | 6 | 17,819 chars, 21 headings, 0 tables | 19,541 chars, 0 headings, 0 tables | 0.23 s / 0.01 s | |
+| git-reset-fdf3b046.html | trafilatura / strip tags | 6 | 19,039 chars, 19 headings, 0 tables | 20,148 chars, 0 headings, 0 tables | 0.43 s / 0.01 s | |
+| git-switch-5da70052.html | trafilatura / strip tags | 4 | 11,728 chars, 19 headings, 0 tables | 13,265 chars, 0 headings, 0 tables | 0.20 s / 0.01 s | |
+| git-restore-ad3d46f7.html | trafilatura / strip tags | 3 | 8,089 chars, 18 headings, 0 tables | 9,591 chars, 0 headings, 0 tables | 0.24 s / 0.01 s | |
+<!-- parsers:end -->
+
+
+### D07 · Parsing my corpus
+
+- Files in the manifest: 966
+- Parsed: 966
+- Failed: 0
+- Pages in Postgres: 2642
+- Parsing coverage: 100%
+
+### Failures by reason
+
+| Reason | Files | What I did |
+|---|---:|---|
+| Current failures | 0 | All files parsed successfully after retry |
+
+- The one I fixed: `data/raw/git-repo/Documentation/git-filter-branch.adoc`
+- Reason: `parse_error`
+- Fix: Fixed the parser issue and successfully retried the file.
+
+### What I saw when I read my parsed pages
+
+- A page where the heading path is right (document, page, path): [FILL AFTER INSPECTION]
+- Something that came out wrong (document, page, what): [FILL AFTER INSPECTION]
+- A table: Markdown grid or loose text? (document, page): [FILL AFTER INSPECTION]
+
+### My parser choice
+
+- For PDFs I use [FILL AFTER PDF COMPARISON] because [REASON].
+- A kind of document in my corpus that neither parser handles well: [FILL AFTER INSPECTION]
+
+### One thing that went wrong today, and how I fixed it
+
+The `git-filter-branch.adoc` file failed during parsing due to a database connection issue while inserting pages. I fixed the issue and successfully retried the file.
