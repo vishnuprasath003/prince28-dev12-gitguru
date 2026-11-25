@@ -1,5 +1,5 @@
 from fastapi import Request
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
 
@@ -22,3 +22,21 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         },
         media_type="application/problem+json",
     )
+
+
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "type": "about:blank",
+            "title": "Unprocessable Entity",
+            "status": 422,
+            "detail": exc.errors(),
+        },
+        media_type="application/problem+json",
+    )
+
+
+def register_error_handlers(app):
+    app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
