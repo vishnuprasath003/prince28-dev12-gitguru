@@ -1,9 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from gitguru.api.deps import check_db, get_repo
+from gitguru.api.deps import check_db, get_gateway, get_repo, get_usage_repo
 from gitguru.api.main import create_app
 from gitguru.config import Settings
+from gitguru.llm.gateway import FakeLLM, LLMGateway
 
 SAMPLE = [
     {"id": "001", "title": "Alpha guideline", "year": 2023, "kind": "guideline"},
@@ -29,6 +30,19 @@ class FakeRepo:
         return next((r for r in self.rows if r["id"] == external_id), None)
 
 
+class FakeUsage:
+    async def by_day(self, days=7):
+        return [
+            {
+                "date": "2026-11-25",
+                "calls": 3,
+                "tokens_in": 300,
+                "tokens_out": 50,
+                "cost_inr": 0.0642,
+            }
+        ]
+
+
 @pytest.fixture
 def settings():
     return Settings(
@@ -44,10 +58,18 @@ def db_state():
 
 
 @pytest.fixture
-def client(settings, db_state):
+def llm():
+    return FakeLLM()
+
+
+@pytest.fixture
+def client(settings, db_state, llm):
     app = create_app(settings)
+
     app.dependency_overrides[get_repo] = lambda: FakeRepo(SAMPLE)
     app.dependency_overrides[check_db] = lambda: db_state["up"]
+    app.dependency_overrides[get_gateway] = lambda: LLMGateway([llm])
+    app.dependency_overrides[get_usage_repo] = lambda: FakeUsage()
 
     with TestClient(app) as c:
         yield c

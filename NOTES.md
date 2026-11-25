@@ -304,3 +304,68 @@ Inspect at least three files next to their parsed pages. Check table quality, he
 ### One thing that went wrong today, and how I fixed it
 
 The `git-filter-branch.adoc` file failed during parsing due to a database connection issue while inserting pages. I fixed the issue and successfully retried the file.
+
+# Day 8 · LLM Gateway
+
+### LLM Gateway
+
+- Primary: `gemini-3.5-flash` (Gemini)
+- Fallback: `openai/gpt-oss-20b` (Groq)
+- First question on my laptop: total **12.62 s**, tokens in **179** / out **164**, cost **Rs 0.000000**
+- JSON request: total **12.62 s**, tokens in **179** / out **164**, cost **Rs 0.000000**
+
+### Tokens: English against Tamil
+
+| Message                                  | Tokens in |
+| ---------------------------------------- | --------: |
+| "Hi" (baseline: mostly my system prompt) |       168 |
+| The English sentence                     |       176 |
+| The same sentence in Tamil               |       252 |
+
+- English content tokens: **8** (176 - 168)
+- Tamil content tokens: **84** (252 - 168)
+- Tamil needs **10.5x** tokens compared to English.
+- Note: English used Gemini; Tamil used Groq fallback, so this is not an exact apples-to-apples comparison.
+
+### What the model does without my documents
+
+- **Q6:** Asked who pushed to the company's main branch last night. The model admitted it does not have access to the repository and was unsure. **Good uncertainty admission.**
+- **Off-topic question:** Asked who won the 2011 Cricket World Cup. The model declined with one sentence saying the question was outside GitGuru's scope.
+- **Additional Git question:** Asked what `git reset --hard` does and what happens to uncommitted changes. The answer was generally correct but included a misleading recovery claim about using the reflog to recover discarded changes.
+- **Document question 1:** Asked what GitGuru's project documentation contains about Git operations and dangerous commands. The model admitted that project documentation was not connected, did not invent document details, and clearly separated general Git knowledge.
+- **Document question 2:** Asked what GitGuru documentation says about handling merge conflicts. The model again admitted that documents were not connected and explained standard Git merge-conflict resolution separately.
+- **Result:** Both document-based questions passed the uncertainty check. No invented project-document content was detected.
+
+### Fallback and circuit breaker
+
+- Set `LLM_PRIMARY_MODEL=gemini-no-such-model` to intentionally break the primary model.
+- First three requests: Gemini returned 404 errors; Groq fallback succeeded.
+- From request 4 onward, the circuit breaker opened and skipped Gemini, sending requests directly to Groq.
+- After waiting 30 seconds, tested the half-open state.
+- Half-open test: first words after **5.10 s**, total **6.93 s**, tokens in **241** / out **202**, fallback **YES**.
+- Removed the invalid model configuration and restarted the server.
+- Restored primary test: Gemini `gemini-3.5-flash`, first words after **20.36 s**, total **25.87 s**, tokens in **179** / out **159**, fallback **NO**.
+
+### The bill
+
+- `/v1/usage` dashboard:
+  - Total calls: **23**
+  - Errors: **8**
+  - Fallbacks: **9**
+  - Total cost: **Rs 0.0949**
+  - Input tokens: **3,274**
+  - Output tokens: **3,453**
+- Average cost per successful recorded provider call: approximately **Rs 0.00633**.
+- Day 1 cost target: **under Rs 0.50 — PASS**
+
+### One thing that went wrong today, and how I fixed it
+
+- Deliberately configured an invalid Gemini model to test fallback.
+- Gemini returned 404 errors.
+- Groq fallback continued answering successfully.
+- Circuit breaker opened after repeated primary failures and skipped Gemini.
+- Waited 30 seconds to test half-open behavior.
+- Removed the invalid model configuration and restarted the server.
+- Verified Gemini primary was restored and fallback was NO.
+- Added the prompts directory to the Docker image using:
+  `COPY --chown=app:app prompts ./prompts`
