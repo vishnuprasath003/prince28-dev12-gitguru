@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 import httpx
 
-from gitguru.api.logging_config import request_id_var as request_id_ctx
+from gitguru.api.logging_config import request_id_var
 from gitguru.config import Settings
 
 logger = logging.getLogger("gitguru.llm")
@@ -106,10 +106,18 @@ class OpenAICompatProvider:
             timeout=httpx.Timeout(timeout, connect=10.0)
         )
 
-    def _body(self, messages: list[Message], temperature: float, stream: bool) -> dict:
+    def _body(
+        self,
+        messages: list[Message],
+        temperature: float,
+        stream: bool,
+        response_format: dict | None = None,
+    ) -> dict:
         body = {"model": self.model, "messages": messages, "temperature": temperature}
         if stream:
             body |= {"stream": True, "stream_options": {"include_usage": True}}
+        if response_format:  # ask the provider itself to produce JSON (Day 9)
+            body["response_format"] = response_format
         return body
 
     @staticmethod
@@ -130,9 +138,13 @@ class OpenAICompatProvider:
         return LLMError(type(exc).__name__, retryable=not timed_out)
 
     async def generate(
-        self, messages: list[Message], *, temperature: float = 0.2
+        self,
+        messages: list[Message],
+        *,
+        temperature: float = 0.2,
+        response_format: dict | None = None,
     ) -> Reply:
-        body = self._body(messages, temperature, stream=False)
+        body = self._body(messages, temperature, False, response_format)
         try:
             response = await self._client.post(
                 self._url, headers=self._headers, json=body
@@ -152,7 +164,7 @@ class OpenAICompatProvider:
         self, messages: list[Message], usage: Reply, *, temperature: float = 0.2
     ) -> AsyncIterator[str]:
         """Yield the answer piece by piece (server-sent events). Fills `usage` at the end."""
-        body = self._body(messages, temperature, stream=True)
+        body = self._body(messages, temperature, True)
         try:
             async with self._client.stream(
                 "POST", self._url, headers=self._headers, json=body
@@ -189,7 +201,8 @@ class FakeLLM:
     """A scripted provider for tests: no network, no bill.
 
     `script` holds what each call does, in order: a string is the answer, an exception is
-    raised, and ("partial", error) streams half an answer and then fails.
+    raised, and ("partial", error) streams half an answer and then fails. `seen` remembers
+    what the model was asked, so a test can check the messages and options.
     """
 
     def __init__(
@@ -198,14 +211,14 @@ class FakeLLM:
         self.name, self.model = name, model
         self.script = list(script or [])
         self.calls = 0
+        self.seen: list[dict] = []
 
     def _next(self) -> object:
         self.calls += 1
         return self.script.pop(0) if self.script else "A fake answer."
 
-    async def generate(
-        self, messages: list[Message], *, temperature: float = 0.2
-    ) -> Reply:
+    async def generate(self, messages: list[Message], **options) -> Reply:
+        self.seen.append({"messages": messages, **options})
         item = self._next()
         if isinstance(item, Exception):
             raise item
@@ -285,7 +298,7 @@ class LLMGateway:
         self, provider, purpose: str, prompt_version: str, **fields
     ) -> None:
         row = {
-            "request_id": request_id_ctx.get(),
+            "request_id": request_id_var.get(),
             "provider": provider.name,
             "model": provider.model,
             "purpose": purpose,

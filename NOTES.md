@@ -369,3 +369,95 @@ The `git-filter-branch.adoc` file failed during parsing due to a database connec
 - Verified Gemini primary was restored and fallback was NO.
 - Added the prompts directory to the Docker image using:
   `COPY --chown=app:app prompts ./prompts`
+
+## D09 · Prompt versions compared
+
+<!-- prompts:start -->
+
+| Prompt version | Correct | Accuracy | Invalid replies | Avg tokens in |
+|---|---|---|---|---|
+| classify_v1 | 13/20 | 65% | 0 | 112 |
+| classify_v2 | 19/20 | 95% | 0 | 279 |
+| classify_v3 | 19/20 | 95% | 0 | 367 |
+| classify_v4 | 20/20 | 100% | 0 | 390 |
+
+<!-- prompts:end -->
+
+### D09 · Prompts and structured output
+
+- My best router prompt: classify_v4 with 20 / 20
+- What I changed in v4, and what happened to the score: Improved the prompt instructions and classification boundaries; accuracy reached 100%.
+- The question my best version still gets wrong: None in the 20-question test set.
+- A label in my test set that I changed after seeing the results: None.
+- Input tokens per question: v1 112, best version v4 390. The extra accuracy is worth it for the current test set, but v4 uses more tokens.
+
+### My contract (DocMeta)
+
+- Fields I kept from my project card: command, option, topic, git_version, section, with document-level fields such as doc_kind, year, language, summary and topics.
+- Fields I deleted, and why they make no sense per document: source, because source information already exists in the document system.
+- The field I tightened, and how: doc_kind was constrained to predefined document categories using Literal values.
+
+### Extraction run
+
+- Prompt version: extract_v1
+- Documents: extraction is ongoing; full corpus target is 966 documents.
+- Not finished? Provider rate limits and temporary Gemini/Groq availability errors interrupted extraction. The run is resumable.
+- Most common failure reason: Provider availability/rate limits and occasional invalid JSON responses.
+- A record that was valid but wrong: Pending manual verification.
+- Cost at list price: Pending final extraction statistics.
+
+### One thing that went wrong today, and how I fixed it
+
+- Metadata extraction was interrupted by provider rate limits and temporary server errors. The extraction process is resumable, so successful documents remain saved and the remaining documents can be processed later.
+- The live API check returned 404 for the documents route. Render is running a manually deployed commit from main, so the Day 9 API changes may not be deployed yet.
+
+## Manual Metadata Verification
+
+Manually inspected 5 document metadata records from the database to check
+whether the extracted metadata fields were populated and reasonably consistent.
+
+| Document ID | Document / Command | Fields Checked | Status |
+|---|---|---|---|
+| 000f261e-738f-4a5a-8108-b05acbeab4ec | Git 2.3.10 Release Notes | Summary, topics, Git version | Partial |
+| 000f65d0-c160-41f5-a027-65f1401ff887 | Git 1.7.2.5 Release Notes | Summary, Git version, section | Partial |
+| 00b88798-6d7d-47b3-bdd1-1497788f8206 | git-unpack-file | Summary, command, topics | Partial |
+| 015cc4da-bef2-4288-9531-f9c87bb5ebe2 | git-ls-files | Summary, command, topics, options | Partial |
+| 01a9394d-18d1-4a76-881a-d447645b868f | Git web configuration | Summary, command, topics | Partial |
+
+### Verification Notes
+
+- Inspected metadata records directly from the database.
+- Checked document titles, summaries, document kinds, commands, topics,
+  Git versions, sections and available options.
+- The extracted metadata appeared reasonably consistent for the inspected records.
+- This was a metadata consistency check; the records were not fully compared
+  against their original source documents.
+- Therefore, the verification is considered partial rather than complete.
+
+## Metadata Extraction Progress
+
+- Total corpus: 966 documents
+- Metadata extraction script: `scripts/extract_metadata.py`
+- Prompt version: `extract_v1`
+- Extraction is resumable; previously processed documents are skipped.
+- More than 160 documents have been processed across multiple runs.
+- Extraction is incomplete due to API rate limits and temporary provider errors (Gemini 429/503 and Groq 429).
+- Latest reported run: 94 successful, 8 repaired, 0 failed.
+- Remaining pending documents: 884 (at the latest reported run).
+- Extraction will be resumed when API rate limits allow.
+
+### Manual Metadata Verification
+
+Manually inspected 5 metadata records from the database.
+
+| Document | Metadata checked | Verification |
+|---|---|---|
+| Git 2.3.10 Release Notes | Summary, topics, Git version | Partial |
+| Git 1.7.2.5 Release Notes | Summary, Git version, section | Partial |
+| git-unpack-file | Summary, command, topics | Partial |
+| git-ls-files | Summary, command, topics, options | Partial |
+| Git web configuration | Summary, command, topics | Partial |
+
+- Checked whether metadata fields were populated and reasonably consistent.
+- This was a database metadata consistency check.
+- The original source documents were not fully compared, so verification is marked partial.
