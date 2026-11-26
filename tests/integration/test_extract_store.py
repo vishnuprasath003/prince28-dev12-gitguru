@@ -1,5 +1,6 @@
 """Extraction against a real Postgres: merged into metadata, resumable, versioned."""
 
+import uuid
 from typing import Literal
 
 from pydantic import BaseModel
@@ -26,6 +27,7 @@ async def no_sleep(seconds: float) -> None:
 
 def document(number: int, doc_type: str = "pdf") -> Document:
     return Document(
+        id=uuid.UUID(int=number),
         title=f"Document {number}",
         doc_type=doc_type,
         sha256=str(number) * 64,
