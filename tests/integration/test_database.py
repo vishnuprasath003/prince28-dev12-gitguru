@@ -38,6 +38,7 @@ async def seeded(settings):
             session.add(
                 Document(
                     title=row["title"],
+                    external_id=f"test-{row['title'].lower()}",
                     sha256=hashlib.sha256(row["title"].encode()).hexdigest(),
                     metadata_={
                         "kind": row["kind"],
