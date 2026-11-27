@@ -399,12 +399,12 @@ The `git-filter-branch.adoc` file failed during parsing due to a database connec
 
 ### Extraction run
 
-- Prompt version: extract_v1
-- Documents: extraction is ongoing; full corpus target is 966 documents.
-- Not finished? Provider rate limits and temporary Gemini/Groq availability errors interrupted extraction. The run is resumable.
-- Most common failure reason: Provider availability/rate limits and occasional invalid JSON responses.
-- A record that was valid but wrong: Pending manual verification.
-- Cost at list price: Pending final extraction statistics.
+- Prompt version: extract_v1 · documents: 230 ok, 0 repaired, 1 failed (of 231 processed)
+- Not finished? Why, and how many are left: 231 of 966 documents processed; 735 remaining. Extraction is resumable.
+- Most common failure reason, and what I did about it: 1 document failed; failure reason not investigated yet.
+- A record that was valid but wrong (document, field, what it said, what is true): Not manually verified yet.
+- Cost at list price: Rs 0.1817 for the initial 5-document run; total cost for 231 documents not yet calculated.
+
 
 ### One thing that went wrong today, and how I fixed it
 
