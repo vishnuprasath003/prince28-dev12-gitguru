@@ -35,6 +35,7 @@ QUERIES = {
     "tokens_out": "select coalesce(sum(tokens_out), 0) from llm_calls where purpose = 'extract'",
     "cost_inr": "select coalesce(sum(cost_inr), 0) from llm_calls where purpose = 'extract'",
 }
+
 LAST_JOB = """
 select j.id, j.requested, extract(epoch from max(i.updated_at) - j.created_at) as seconds,
        count(*) filter (where i.status in ('done', 'skipped')) as ok,
@@ -43,6 +44,7 @@ from ingest_jobs j join ingest_items i on i.job_id = j.id
 where j.id = (select id from ingest_jobs order by created_at desc limit 1)
 group by j.id, j.requested, j.created_at
 """
+
 REASONS = """
 select split_part(error, ':', 1) as stage, count(*) from ingest_items
 where status = 'failed' group by 1 order by 2 desc
@@ -83,27 +85,35 @@ def render(n: dict, last, reasons: list) -> str:
         f"| Items that needed more than one try | {n['retried']} |",
         f"| Items in the dead-letter list | {n['dead_letter']} |",
         "",
-        f"Model calls for extraction: {n['model_calls']} · tokens in {n['tokens_in']:,} · "
-        f"tokens out {n['tokens_out']:,} · cost at list price Rs {float(n['cost_inr']):.2f}",
+        (
+            f"Model calls for extraction: {n['model_calls']} · tokens in {n['tokens_in']:,} · "
+            f"tokens out {n['tokens_out']:,} · cost at list price Rs {float(n['cost_inr']):.2f}"
+        ),
     ]
+
     if last:
         minutes = float(last.seconds or 0) / 60
         lines += [
             "",
-            f"Last job `{last.id}`: {last.requested} requested, {last.ok} ok, "
-            f"{last.failed} failed, {minutes:.1f} minutes.",
+            (
+                f"Last job `{last.id}`: {last.requested} requested, {last.ok} ok, "
+                f"{last.failed} failed, {minutes:.1f} minutes."
+            ),
         ]
+
     if reasons:
         lines += [
             "",
             "Dead-letter list by stage: " + ", ".join(f"{s} {c}" for s, c in reasons),
         ]
+
     return "\n".join([*lines, END])
 
 
 def main() -> int:
     numbers, last, reasons = asyncio.run(collect())
     block = render(numbers, last, reasons)
+
     if (
         REPORT.exists()
         and START in (old := REPORT.read_text(encoding="utf-8"))
@@ -116,10 +126,13 @@ def main() -> int:
             + block
             + "\n\n## What I learnt\n\n(three lines, yours)\n"
         )
+
     REPORT.parent.mkdir(exist_ok=True)
     REPORT.write_text(new, encoding="utf-8")
+
     summary = f"documents={numbers['documents']} pages={numbers['pages']}"
     print(f"{summary} dead_letter={numbers['dead_letter']} -> {REPORT}")
+
     return 0
 
 
