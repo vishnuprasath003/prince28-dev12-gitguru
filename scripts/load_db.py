@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import os
 import uuid
 from datetime import date
 from pathlib import Path
@@ -13,7 +14,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from gitguru.db.models import Document
 from gitguru.db.session import make_engine
 
-DATA_FILE = Path("data/sample_records.json")
+DATA_FILE = Path(os.getenv("DATA_FILE", "data/sample_records.json"))
 
 
 def fingerprint(record: dict) -> str:
@@ -32,6 +33,7 @@ def to_row(record: dict) -> dict:
 
     return {
         "id": uuid.uuid5(uuid.NAMESPACE_URL, f"gitguru:document:{external_id}"),
+        "external_id": external_id,
         "title": str(record.get("title") or record.get("command") or external_id),
         "source_url": record.get("source_url"),
         "licence": record.get("licence"),

@@ -28,6 +28,7 @@ async def no_sleep(seconds: float) -> None:
 def document(number: int, doc_type: str = "pdf") -> Document:
     return Document(
         id=uuid.UUID(int=number),
+        external_id=f"test-document-{number}",
         title=f"Document {number}",
         doc_type=doc_type,
         sha256=str(number) * 64,
@@ -63,9 +64,17 @@ async def test_extraction_is_stored_resumable_and_versioned(database_url):
     # 1 is fine, 2 is wrong three times, 3 needs one repair.
     # The data record (4) is never sent.
     llm = FakeLLM(
-        script=[GOOD, "no", "no", "no", '{"kind": "poem", "topics": []}', GOOD]
+        script=[
+            GOOD,
+            "no",
+            "no",
+            "no",
+            '{"kind": "poem", "topics": []}',
+            GOOD,
+        ]
     )
     counts, said = await extract_all(llm)
+
     assert (counts["ok"], counts["repaired"], counts["failed"]) == (
         2,
         1,
@@ -73,6 +82,7 @@ async def test_extraction_is_stored_resumable_and_versioned(database_url):
     ) and llm.calls == 6
 
     meta = await stored()
+
     assert (
         meta["Document 1"]["kind"] == "circular"
         and meta["Document 1"]["parser"] == "pymupdf"
@@ -93,6 +103,7 @@ async def test_extraction_is_stored_resumable_and_versioned(database_url):
         meta["Document 3"]["extract"]["attempts"] == 2
         and "extract" not in meta["Document 4"]
     )
+
     assert any(line.startswith("FAILED") for line in said)
 
     again = FakeLLM()
@@ -101,6 +112,7 @@ async def test_extraction_is_stored_resumable_and_versioned(database_url):
 
     retry = FakeLLM(script=[GOOD])
     counts, _ = await extract_all(retry, retry_failed=True)  # only the failed one
+
     assert (
         counts["ok"] == 1
         and retry.calls == 1
@@ -112,6 +124,7 @@ async def test_extraction_is_stored_resumable_and_versioned(database_url):
 
     down = FakeLLM(script=[LLMError("HTTP 429", retryable=False)] * 2)
     counts, said = await extract_all(down, version="extract_v3")
+
     assert counts["stopped"] == 1 and counts["ok"] == 0 and "stopped" in said[-1]
 
     await engine.dispose()

@@ -32,6 +32,12 @@ class Document(Base):
     licence: Mapped[str | None] = mapped_column(String, nullable=True)
     doc_type: Mapped[str | None] = mapped_column(String, nullable=True)
     published_on: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+    # Day 10: stable content-based identifier
+    external_id: Mapped[str] = mapped_column(
+        String(24), unique=True, index=True, nullable=False
+    )
+
     sha256: Mapped[str] = mapped_column(
         String(64), unique=True, index=True, nullable=False
     )
@@ -112,3 +118,40 @@ class LlmCall(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), index=True
     )
+
+
+class IngestJob(Base):
+    """One request to ingest a batch of documents. Its items carry the real state."""
+
+    __tablename__ = "ingest_jobs"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    requested: Mapped[int]
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    items: Mapped[list["IngestItem"]] = relationship(
+        back_populates="job", cascade="all, delete-orphan"
+    )
+
+
+class IngestItem(Base):
+    """One document in a batch: queued -> running -> done / skipped / failed."""
+
+    __tablename__ = "ingest_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[str] = mapped_column(
+        ForeignKey("ingest_jobs.id", ondelete="CASCADE"), index=True
+    )
+    record: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    status: Mapped[str] = mapped_column(String(10), server_default="queued", index=True)
+    attempts: Mapped[int] = mapped_column(server_default="0")
+    error: Mapped[str] = mapped_column(Text, server_default="")
+    pages: Mapped[int] = mapped_column(server_default="0")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    job: Mapped[IngestJob] = relationship(back_populates="items")

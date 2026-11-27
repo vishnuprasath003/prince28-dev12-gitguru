@@ -449,7 +449,6 @@ whether the extracted metadata fields were populated and reasonably consistent.
 ### Manual Metadata Verification
 
 Manually inspected 5 metadata records from the database.
-
 | Document | Metadata checked | Verification |
 |---|---|---|
 | Git 2.3.10 Release Notes | Summary, topics, Git version | Partial |
@@ -457,7 +456,40 @@ Manually inspected 5 metadata records from the database.
 | git-unpack-file | Summary, command, topics | Partial |
 | git-ls-files | Summary, command, topics, options | Partial |
 | Git web configuration | Summary, command, topics | Partial |
-
 - Checked whether metadata fields were populated and reasonably consistent.
 - This was a database metadata consistency check.
 - The original source documents were not fully compared, so verification is marked partial.
+
+### D10 · Queue and worker
+
+- First run: 10 documents were queued for ingestion. The ingestion process was tested successfully, and the documents were processed through the queue.
+- Pace: INGEST_RPM = 12.0 and INGEST_CONCURRENCY = 2. The worker processed documents concurrently to improve ingestion speed.
+
+### Kill test
+
+- Queued: 20. At the kill: queued 13, running 2, done 5, failed 0.
+- After the new worker: done 19 + skipped 1 + failed 0 = 20 (must be 20).
+- Documents in the database: 957, different IDs: 957 (must be equal).
+- Recovery: The worker was stopped during processing and restarted. The remaining queued/running jobs were recovered and processed. Some jobs were skipped because they were already processed.
+- Why nothing was doubled: The ingestion pipeline checks existing document IDs before inserting, so retrying a job does not create duplicate documents.
+
+### Dead-letter list
+
+| Stage (parse / extract / download / gave up) | Items | What I did |
+|---|---:|---|
+| Dead-letter | 1 | Checked the ingestion report and identified one item in the dead-letter list. |
+
+### Live ingestion
+
+- GitGuru on Render: Prepared for live ingestion testing with Redis and worker configuration.
+- A request without the token gets status: 401 Unauthorized (to be verified during the live test).
+
+### Week 2 against Monday's estimate
+
+- docs/CAPACITY.md said: 2,000 pages and 1,863,292 tokens.
+- Actual ingestion report: 957 documents and 2,615 pages.
+- The difference, and why: The actual page count was 615 pages higher than the estimated capacity, which is approximately 30.75% above the estimate. The actual token count was not available in the report output, so the token difference could not be calculated.
+
+### One thing that went wrong today, and how I fixed it
+
+The worker was interrupted during the kill test. I restarted the worker and checked the job status in the database. The original 20 items were recovered and completed with 19 done, 1 skipped, and 0 failed. I also verified that 957 documents had 957 unique IDs, confirming that duplicate documents were not created.
