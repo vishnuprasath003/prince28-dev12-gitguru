@@ -9,6 +9,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
+    "arq>=0.28.0",
     "asyncpg>=0.32.0",
     "fastapi[standard]",
     "httpx>=0.28.1",
@@ -52,6 +53,7 @@ skip_covered = true
 
 [tool.poe.tasks]
 dev = "uvicorn gitguru.api.main:create_app --factory --reload --no-access-log"
+worker = "arq gitguru.workers.main.WorkerSettings"
 lint = ["_ruff_check", "_ruff_format"]
 _ruff_check = "ruff check ."
 _ruff_format = "ruff format --check ."
