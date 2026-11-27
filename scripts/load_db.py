@@ -1,9 +1,9 @@
 """Idempotently load sample records into PostgreSQL documents."""
 
-import os
 import asyncio
 import hashlib
 import json
+import os
 import uuid
 from datetime import date
 from pathlib import Path

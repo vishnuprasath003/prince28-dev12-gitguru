@@ -24,6 +24,7 @@ def test_loader_is_idempotent(database_url, tmp_path):
         result = subprocess.run(
             cmd,
             env=env,
+            check=False,
             capture_output=True,
             text=True,
         )
